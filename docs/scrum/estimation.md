@@ -1,6 +1,8 @@
-# Estimación y priorización del Product Backlog
+# Estimación y priorización del Product Backlog (general)
 
-> Ver también: [Product Backlog](product_backlog.md) · [Sprint 0](sprints/sprint-0/plan.md) · [Definition of Done](definition_of_done.md)
+> Ver también: [Product Backlog](product_backlog.md) · [DoD base](dod_base.md)
+
+Esta es la estimación de **todo el backlog**. Cada sprint tiene además su propia estimación reducida (solo sus historias) dentro de `sprints/sprint-N/estimation.md` — ver [Sprint 0](sprints/sprint-0/estimation.md).
 
 Escala: **Fibonacci** (1, 2, 3, 5, 8, 13) en story points, relativa a complejidad/esfuerzo/incertidumbre (no horas).
 Prioridad: **MoSCoW** (Must / Should / Could / Won't-this-release).
@@ -28,4 +30,4 @@ Prioridad: **MoSCoW** (Must / Should / Could / Won't-this-release).
 - HU-5 (mask manual) es prerequisito de HU-6 (sugerencia automática solo la complementa) y de HU-7 (procesar necesita una máscara, manual o sugerida).
 - HU-7 es prerequisito de HU-8 (el lote reutiliza el procesamiento individual).
 - HU-9 (empaquetado) depende de tener HU-4, HU-5, HU-7, HU-8 funcionando (flujo completo a empaquetar).
-- HU-10 (tests) se construye en paralelo a cada historia, no al final — cada HU de código debe traer sus tests (ver [Definition of Done](definition_of_done.md)).
+- HU-10 (tests) se construye en paralelo a cada historia, no al final — cada HU de código debe traer sus tests (ver [DoD base](dod_base.md)).

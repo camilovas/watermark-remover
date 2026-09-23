@@ -1,6 +1,8 @@
-# Definition of Done (DoD)
+# Definition of Done (DoD) — base del proyecto
 
-> Ver también: [Product Backlog](product_backlog.md) · [Estimación](estimation.md) · [Arquitectura](../architecture/overview.md)
+> Ver también: [Product Backlog](product_backlog.md) · [Estimación general](estimation.md) · [Arquitectura](../architecture/overview.md)
+
+Este es el **mínimo común** que aplica a todos los sprints. Cada sprint tiene su propia `definition_of_done.md` (dentro de `sprints/sprint-N/`) que **hereda estos puntos** y puede agregar criterios específicos de ese sprint (ej. un spike no entrega código de producción, así que su DoD es distinto al de una historia funcional).
 
 Una historia de usuario se considera "Done" cuando cumple TODO lo siguiente:
 

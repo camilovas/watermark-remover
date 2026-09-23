@@ -10,15 +10,15 @@ Estado actual: **fase de planeación** (Sprint 0 aún no ejecutado — ver [docs
 |---|---|---|
 | `docs/research/` | Investigación y mejores prácticas que fundamentan las decisiones | [best_practices.md](docs/research/best_practices.md) |
 | `docs/architecture/` | Diseño técnico | [overview.md](docs/architecture/overview.md) (visión general), [detailed.md](docs/architecture/detailed.md) (módulos, interfaces, diagramas) |
-| `docs/scrum/` | Artefactos ágiles | [product_backlog.md](docs/scrum/product_backlog.md) (épicas/historias/criterios de aceptación), [estimation.md](docs/scrum/estimation.md) (story points, MoSCoW, dependencias), [definition_of_done.md](docs/scrum/definition_of_done.md) |
-| `docs/scrum/sprints/` | Un subfolder por sprint (`sprint-0/`, `sprint-1/`, ...), cada uno con su `plan.md` | [sprint-0/plan.md](docs/scrum/sprints/sprint-0/plan.md) |
+| `docs/scrum/` | Artefactos ágiles a nivel de producto | [product_backlog.md](docs/scrum/product_backlog.md) (épicas/historias/criterios de aceptación), [estimation.md](docs/scrum/estimation.md) (story points de TODO el backlog), [dod_base.md](docs/scrum/dod_base.md) (mínimo común, heredado por cada sprint) |
+| `docs/scrum/sprints/` | Un subfolder por sprint (`sprint-0/`, `sprint-1/`, ...), cada uno con **su propio** `plan.md`, `estimation.md` (subset del backlog) y `definition_of_done.md` (hereda `dod_base.md` + criterios propios) | [sprint-0/](docs/scrum/sprints/sprint-0/) |
 
 ## Cómo se conectan
 - **Backlog** (`product_backlog.md`) es la fuente de verdad de las historias (HU-1 a HU-11); sus criterios de aceptación derivan de `research/best_practices.md`.
-- **Estimation** (`estimation.md`) asigna story points/prioridad/dependencias a cada HU del backlog — úsalo junto al backlog, no por separado.
+- **Estimation** general (`estimation.md`) asigna story points/prioridad/dependencias a cada HU del backlog completo — úsalo junto al backlog, no por separado.
 - **Architecture** (`overview.md` + `detailed.md`) traduce las historias en diseño técnico (módulos, interfaces Strategy/Null Object, diagramas de flujo).
-- **Sprint0** es el primer recorte de historias (HU-1, HU-2, HU-3) del backlog para arrancar.
-- **Definition of Done** aplica a todas las historias sin importar el sprint.
+- Cada **sprint** (`sprints/sprint-N/`) recorta un subconjunto de historias del backlog y trae su propia `estimation.md` (solo esas historias) y `definition_of_done.md` (hereda `dod_base.md` + ajustes propios del sprint, ej. un sprint de spikes no exige empaquetado). Sprint 0 = HU-1, HU-2, HU-3.
+- **`dod_base.md`** es el mínimo común a todos los sprints; nunca se relaja, solo se extiende por sprint.
 
 ## Convenciones de este repo
 - Toda decisión de arquitectura debe quedar justificada en `docs/research/` antes (o al momento) de escribirse en `docs/architecture/`.
