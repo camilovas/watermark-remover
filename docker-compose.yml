@@ -1,0 +1,9 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    command: pytest -v
