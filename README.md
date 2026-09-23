@@ -4,7 +4,7 @@ App de escritorio para eliminar marcas de agua de imágenes (selección múltipl
 
 ## Documentación
 - [Investigación y mejores prácticas](docs/research_best_practices.md)
-- [Arquitectura](docs/architecture.md)
+- [Arquitectura](docs/architecture.md) · [Arquitectura detallada (módulos, diagramas)](docs/architecture_detailed.md)
 - [Product Backlog (Scrum)](docs/scrum/product_backlog.md)
 - [Definition of Done](docs/scrum/definition_of_done.md)
 - [Sprint 0](docs/scrum/sprint0.md)

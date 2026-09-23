@@ -7,7 +7,7 @@ App de escritorio para quitar marcas de agua de imágenes (selección múltiple,
 - **UI**: Python + PySide6.
 - **Empaquetado**: PyInstaller (con plugins de Qt explícitos) → ejecutable standalone (.exe en Windows).
 - **Motor de inpainting local**: IOPaint (modelo LaMa), corre embebido/local en la máquina del usuario. Gratis, offline.
-- **Asistencia opcional de IA remota**: API de Claude (Anthropic), usada solo para tareas baratas en tokens:
+- **Asistencia opcional de IA remota**: API de Claude (Anthropic) — **modelo Claude Haiku** (el más económico) sobre miniaturas reducidas (~512px), usada solo para tareas baratas en tokens:
   - Sugerir el bounding box / máscara de la marca de agua a partir de una miniatura.
   - Control de calidad rápido del resultado (¿quedó rastro visible?).
   - Generación de nombres de archivo / reportes de lote.

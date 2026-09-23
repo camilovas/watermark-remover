@@ -35,7 +35,7 @@ Como usuario quiero dibujar/ajustar un rectángulo o máscara sobre la imagen pa
 
 ### HU-6: Sugerencia automática de región vía Claude (opcional)
 Como usuario quiero que la app sugiera automáticamente la región de la marca de agua para ahorrar tiempo.
-- **AC1**: Si hay API key configurada, se envía solo una miniatura (baja resolución) a Claude, no la imagen completa.
+- **AC1**: Si hay API key configurada, se envía solo una miniatura (baja resolución, ~512px) a Claude usando el modelo **Haiku** (el más económico), no la imagen completa ni un modelo más caro.
 - **AC2**: El usuario puede aceptar, ajustar o rechazar la sugerencia antes de procesar.
 - **AC3**: Si no hay API key, la opción se oculta/deshabilita sin generar errores.
 
@@ -50,6 +50,11 @@ Como usuario quiero procesar muchas imágenes de una vez y poder cancelar si es 
 - **AC1**: Barra de progreso global (X de N imágenes) y por imagen.
 - **AC2**: Botón de cancelar detiene el lote sin corromper archivos ya procesados.
 - **AC3**: Errores en una imagen individual no detienen el resto del lote (se reporta al final).
+
+### HU-11 (backlog futuro, fuera de MVP): Motor alternativo de alta calidad (Stable Diffusion)
+Como usuario con GPU quiero un "modo alta calidad" opcional para fondos complejos donde LaMa no sea suficiente.
+- **AC1**: Disponible solo si se detecta GPU compatible; en su ausencia, la opción se oculta.
+- **AC2**: No reemplaza el motor por defecto (LaMa); es una alternativa seleccionable, priorizada solo después del MVP.
 
 ## Épica 4 — Distribución
 ### HU-9: Empaquetado como ejecutable standalone
