@@ -10,7 +10,7 @@
 ## Entregables esperados
 - Repositorio con estructura base (`src/`, `tests/`, `docs/`, `docker/`).
 - `docker-compose.yml` + `docker/Dockerfile.test` funcionando.
-- Documento de resultados de los spikes (viabilidad, tiempos, costos) agregado a `docs/research_best_practices.md`.
+- Documento de resultados de los spikes (viabilidad, tiempos, costos) agregado a `docs/research/best_practices.md`.
 
 ## Fuera de alcance en Sprint 0
 - UI final, selección múltiple real, empaquetado con PyInstaller (eso empieza en el Sprint 1, Épica 2).

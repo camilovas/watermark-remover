@@ -3,9 +3,10 @@
 App de escritorio para eliminar marcas de agua de imágenes (selección múltiple / por lotes), con IA local (IOPaint/LaMa) complementada opcionalmente por la API de Claude para tareas baratas (detección de región). Funciona en cualquier PC **sin Docker**; Docker/docker-compose se usan solo para pruebas.
 
 ## Documentación
-- [Investigación y mejores prácticas](docs/research_best_practices.md)
-- [Arquitectura](docs/architecture.md) · [Arquitectura detallada (módulos, diagramas)](docs/architecture_detailed.md)
+- [Investigación y mejores prácticas](docs/research/best_practices.md)
+- [Arquitectura](docs/architecture/overview.md) · [Arquitectura detallada (módulos, diagramas)](docs/architecture/detailed.md)
 - [Product Backlog (Scrum)](docs/scrum/product_backlog.md)
+- [Estimación y priorización](docs/scrum/estimation.md)
 - [Definition of Done](docs/scrum/definition_of_done.md)
 - [Sprint 0](docs/scrum/sprint0.md)
 

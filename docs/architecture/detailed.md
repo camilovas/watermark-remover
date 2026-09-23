@@ -1,6 +1,6 @@
 # Arquitectura técnica detallada
 
-Complementa [architecture.md](architecture.md) con el diseño de módulos, interfaces y flujos, sin entrar todavía en código (fase de planeación).
+Complementa [overview.md](overview.md) con el diseño de módulos, interfaces y flujos, sin entrar todavía en código (fase de planeación).
 
 ## 1. Layout de carpetas planeado
 

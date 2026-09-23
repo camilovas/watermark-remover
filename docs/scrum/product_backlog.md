@@ -1,7 +1,7 @@
 # Product Backlog
 
 Metodología: Scrum. Ver [Definition of Done](definition_of_done.md) y [Sprint 0](sprint0.md).
-Los criterios de aceptación se basan en la [investigación de mejores prácticas](../research_best_practices.md).
+Los criterios de aceptación se basan en la [investigación de mejores prácticas](../research/best_practices.md).
 
 ## Épica 1 — Base del proyecto (Sprint 0)
 ### HU-1: Entorno de desarrollo y pruebas reproducible
