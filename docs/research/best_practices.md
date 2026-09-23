@@ -1,6 +1,8 @@
 # Investigación: mejores prácticas
 
-Investigación realizada en Sprint 0 para fundamentar decisiones de arquitectura. Cada hallazgo se traduce en criterios de aceptación dentro del [Product Backlog](scrum/product_backlog.md).
+> Ver también: [Product Backlog](../scrum/product_backlog.md) · [Arquitectura](../architecture/overview.md)
+
+Investigación realizada en Sprint 0 para fundamentar decisiones de arquitectura. Cada hallazgo se traduce en criterios de aceptación dentro del [Product Backlog](../scrum/product_backlog.md).
 
 ## 1. Motor de remoción de marcas de agua (IA local)
 

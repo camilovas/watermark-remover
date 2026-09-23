@@ -1,5 +1,7 @@
 # Arquitectura
 
+> Ver también: [Arquitectura detallada](detailed.md) · [Investigación y mejores prácticas](../research/best_practices.md) · [Product Backlog](../scrum/product_backlog.md)
+
 ## Objetivo
 App de escritorio para quitar marcas de agua de imágenes (selección múltiple, procesamiento por lotes), que funcione en cualquier PC sin Docker instalado. Docker/docker-compose se usan solo para el entorno de pruebas.
 

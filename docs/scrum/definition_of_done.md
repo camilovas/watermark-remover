@@ -1,5 +1,7 @@
 # Definition of Done (DoD)
 
+> Ver también: [Product Backlog](product_backlog.md) · [Estimación](estimation.md) · [Arquitectura](../architecture/overview.md)
+
 Una historia de usuario se considera "Done" cuando cumple TODO lo siguiente:
 
 1. Código implementado y fusionado, siguiendo la arquitectura definida en [architecture/overview.md](../architecture/overview.md).

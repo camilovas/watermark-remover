@@ -1,5 +1,7 @@
 # Arquitectura técnica detallada
 
+> Ver también: [Arquitectura (visión general)](overview.md) · [Product Backlog](../scrum/product_backlog.md)
+
 Complementa [overview.md](overview.md) con el diseño de módulos, interfaces y flujos, sin entrar todavía en código (fase de planeación).
 
 ## 1. Layout de carpetas planeado

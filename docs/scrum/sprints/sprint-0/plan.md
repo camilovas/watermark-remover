@@ -1,5 +1,7 @@
 # Sprint 0 — Fundación técnica
 
+> Ver también: [Product Backlog](../../product_backlog.md) · [Estimación](../../estimation.md) · [Definition of Done](../../definition_of_done.md)
+
 **Objetivo del sprint:** dejar el proyecto listo para empezar a construir funcionalidad: entorno de pruebas reproducible, validación de viabilidad del motor de IA local y de la integración barata con Claude.
 
 ## Alcance (historias)

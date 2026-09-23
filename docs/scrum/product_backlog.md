@@ -1,6 +1,6 @@
 # Product Backlog
 
-Metodología: Scrum. Ver [Definition of Done](definition_of_done.md) y [Sprint 0](sprint0.md).
+Metodología: Scrum. Ver [Definition of Done](definition_of_done.md), [Estimación](estimation.md) y [Sprint 0](sprints/sprint-0/plan.md).
 Los criterios de aceptación se basan en la [investigación de mejores prácticas](../research/best_practices.md).
 
 ## Épica 1 — Base del proyecto (Sprint 0)
