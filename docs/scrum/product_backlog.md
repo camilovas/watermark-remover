@@ -1,6 +1,6 @@
 # Product Backlog
 
-Metodología: Scrum. Ver [DoD base](dod_base.md), [Estimación general](estimation.md) y [Sprint 0](sprints/sprint-0/plan.md) (con su propia estimación y DoD).
+Metodología: Scrum. Ver [DoD base](dod_base.md), [Estimación general](estimation.md) y el [Roadmap de sprints](roadmap.md) (cada sprint con su propia estimación, DoD y tareas desglosadas).
 Los criterios de aceptación se basan en la [investigación de mejores prácticas](../research/best_practices.md).
 
 ## Épica 1 — Base del proyecto (Sprint 0)
