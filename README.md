@@ -8,6 +8,7 @@ App de escritorio para eliminar marcas de agua de imágenes (selección múltipl
 - [Product Backlog (Scrum)](docs/scrum/product_backlog.md)
 - [Estimación general del backlog](docs/scrum/estimation.md)
 - [DoD base del proyecto](docs/scrum/dod_base.md)
+- [Roles y ceremonias Scrum](docs/scrum/roles_ceremonies.md)
 - [Roadmap de sprints](docs/scrum/roadmap.md) — [Sprint 0](docs/scrum/sprints/sprint-0/plan.md) · [Sprint 1](docs/scrum/sprints/sprint-1/plan.md) · [Sprint 2](docs/scrum/sprints/sprint-2/plan.md) · [Sprint 3](docs/scrum/sprints/sprint-3/plan.md)
 
 ## Desarrollo local (sin Docker)

@@ -10,7 +10,7 @@ Estado actual: **fase de planeación** (ningún sprint ejecutado todavía — ve
 |---|---|---|
 | `docs/research/` | Investigación y mejores prácticas que fundamentan las decisiones | [best_practices.md](docs/research/best_practices.md) |
 | `docs/architecture/` | Diseño técnico | [overview.md](docs/architecture/overview.md) (visión general), [detailed.md](docs/architecture/detailed.md) (módulos, interfaces, diagramas) |
-| `docs/scrum/` | Artefactos ágiles a nivel de producto | [product_backlog.md](docs/scrum/product_backlog.md) (épicas/historias/criterios de aceptación), [estimation.md](docs/scrum/estimation.md) (story points de TODO el backlog), [dod_base.md](docs/scrum/dod_base.md) (mínimo común, heredado por cada sprint) |
+| `docs/scrum/` | Artefactos ágiles a nivel de producto | [product_backlog.md](docs/scrum/product_backlog.md) (épicas/historias/criterios de aceptación), [estimation.md](docs/scrum/estimation.md) (story points de TODO el backlog), [dod_base.md](docs/scrum/dod_base.md) (mínimo común, heredado por cada sprint), [roles_ceremonies.md](docs/scrum/roles_ceremonies.md) (PO/Scrum Master/Dev Team, ceremonias) |
 | `docs/scrum/sprints/` | Un subfolder por sprint (`sprint-0/` a `sprint-3/`), cada uno con **su propio** `plan.md` (con tareas desglosadas por historia), `estimation.md` (subset del backlog) y `definition_of_done.md` (hereda `dod_base.md` + criterios propios) | [roadmap.md](docs/scrum/roadmap.md) (vista general) · [sprint-0/](docs/scrum/sprints/sprint-0/) · [sprint-1/](docs/scrum/sprints/sprint-1/) · [sprint-2/](docs/scrum/sprints/sprint-2/) · [sprint-3/](docs/scrum/sprints/sprint-3/) |
 
 ## Cómo se conectan

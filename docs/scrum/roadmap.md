@@ -1,6 +1,6 @@
 # Roadmap de Sprints
 
-> Ver también: [Product Backlog](product_backlog.md) · [Estimación general](estimation.md) · [DoD base](dod_base.md)
+> Ver también: [Product Backlog](product_backlog.md) · [Estimación general](estimation.md) · [DoD base](dod_base.md) · [Roles y ceremonias](roles_ceremonies.md)
 
 **Supuesto de capacidad** (ajustable): equipo pequeño (1-2 desarrolladores), sprints de 2 semanas, velocidad estimada ~15 story points/sprint. Si el equipo real es distinto, recalcular la distribución de historias por sprint — las dependencias documentadas en [estimation.md](estimation.md#dependencias-relevantes-para-el-roadmap) no cambian.
 
