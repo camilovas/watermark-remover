@@ -12,6 +12,14 @@ Investigación realizada en Sprint 0 para fundamentar decisiones de arquitectura
 
 **Decisión de arquitectura derivada:** usar **IOPaint (LaMa) local** como motor de inpainting (gratis, offline, sin costo por imagen). La detección de la región de marca de agua se apoya opcionalmente en **Ollama** (modelo de visión local, ej. `moondream`), corriendo en esta máquina o en otra de la misma red — reservando el cómputo pesado (generación de píxeles) para el modelo local de inpainting.
 
+### Hallazgos del spike HU-2 (IOPaint/LaMa, instalado y probado localmente, fuera de Docker)
+- Instalación: `pip install iopaint` (v1.6.0) funcionó sin problemas en Python 3.10 local (Windows). Nota: baja `Pillow` a 9.5.0 (fijado por iopaint), lo cual puede chocar con otras herramientas del sistema que pidan Pillow más reciente — dentro del entorno virtual propio del proyecto esto no es un problema.
+- CLI: `iopaint run --model lama --device cpu --image <img> --mask <mask> --output <dir>`.
+- **Primera corrida** (incluye descarga del modelo `big-lama.pt`): 144s.
+- **Corridas siguientes** (modelo ya cacheado en `~/.cache/torch/hub/checkpoints/`): **~25s totales, de los cuales solo ~7s son inferencia pura** — el resto es overhead de cargar el modelo a memoria. Medido en CPU, sin GPU, sobre una imagen de 1200×800px.
+- **Calidad del resultado**: sobre la imagen de prueba sintética, LaMa eliminó completamente el texto de la marca de agua y reconstruyó el patrón de fondo (rayas verticales) de forma convincente. Se observó un artefacto leve (línea tenue) en el borde de la máscara — aceptable para el caso de uso, pero sugiere que ajustar la máscara con un poco de margen/difuminado alrededor de la marca de agua real mejoraría el resultado (tarea para HU-5: el mask editor podría ofrecer un "grow/feather" configurable).
+- **Conclusión:** IOPaint/LaMa es viable como motor por defecto: rápido en CPU (unos segundos por imagen), sin necesitar GPU, y con buena calidad visual para el caso de uso principal. Corre completamente offline una vez descargado el modelo (~200MB, una sola vez).
+
 Fuentes:
 - [lama-inpainting · GitHub Topics](https://github.com/topics/lama-inpainting)
 - [IOPaint - Free and Open-Source AI Image Inpainting Tool](https://aibars.net/en/projects/725043813751590912)
@@ -34,6 +42,29 @@ El plan original consideraba la API de Claude (pago por token) para la detecció
 - **Sin API key ni internet**: coherente con el requisito de que la app funcione en cualquier PC sin depender de un servicio externo.
 - **Corre en red local**: Ollama expone su API HTTP (`http://<host>:11434` por defecto) — puede correr en la misma máquina del usuario, o en **otra máquina de la red local** que sí tenga el modelo cargado (ej. un equipo más potente compartido por varios usuarios). La app debe permitir configurar el host de Ollama (`OLLAMA_HOST`), no asumir siempre `localhost`.
 - **Modelo elegido (`moondream`)**: liviano y rápido, suficiente para una tarea simple como devolver un bounding box sobre una miniatura reducida (~512px). Si se necesita más precisión, `llava:7b` es una alternativa más pesada.
+
+### Hallazgos del spike HU-3
+
+**1. Causa raíz real: bug de GPU/Vulkan en Ollama, no del modelo.**
+Al llamar `POST /api/generate` (imagen de prueba sintética `tests/fixtures/sample_watermarked.png`, miniatura ~512px), Ollama devolvía consistentemente un error 500:
+```
+llama-server process has terminated: exit status 0xc0000409:
+The system detected an overrun of a stack-based buffer in this application.
+```
+El log de Ollama (`%LOCALAPPDATA%\Ollama\server.log`) mostró la causa real: `ERROR: vkQueueSubmit: Invalid queue [VUID-vkQueueSubmit-queue-parameter]` — un fallo del backend Vulkan al intentar descargar capas del modelo a la GPU. **Esto no era específico de `moondream`**: el mismo crash ocurría con `llava:7b` e incluso con `qwen2.5-coder:7b` (modelo de solo texto, sin visión), confirmando que es un problema de GPU/drivers en esta máquina, no de compatibilidad de un modelo puntual. Persistió igual tras actualizar Ollama 0.34.1 → 0.34.3.
+
+**Solución:** forzar inferencia en CPU pasando `"options": {"num_gpu": 0}` en cada request. Con eso, tanto `moondream` como `llava:7b` y `qwen2.5-coder:7b` funcionan sin crashear.
+
+**2. Comparación de modelos en CPU (mismo prompt, misma miniatura):**
+
+| Modelo | Tiempo respuesta | Resultado | Nota |
+|---|---|---|---|
+| `moondream` (1.7GB) | ~51s | Devolvió un bounding box `[0.24, 0.68, 0.83, 0.87]` (normalizado 0-1, no en píxeles como se pidió) | Region detectada no coincide bien con la real (marca real en la esquina inferior derecha; detección más centrada) — precisión baja en esta prueba |
+| `llava:7b` (4.7GB) | ~171s (2.85 min) | `{"found": false}` — no detectó la marca de agua presente | Más lento y con falso negativo en esta prueba |
+
+**Decisión:** usar `moondream` como modelo por defecto (es ~3.4x más rápido que `llava:7b` en CPU y más liviano en disco), pero **forzando `num_gpu: 0`** hasta resolver el bug de Vulkan, y dejando el modelo configurable (no hardcodeado) para que el usuario pueda cambiarlo si tiene mejor GPU/drivers o prefiere `llava` por precisión.
+
+**3. Riesgo de UX detectado:** 51-171 segundos por detección es lento para una función que se presenta como "automática" — HU-6 debe manejar esto con un indicador de progreso claro y no bloquear la UI (ya contemplado en el diseño con la interfaz `WatermarkDetector` async). La precisión también fue baja en esta prueba sintética; se recomienda ajustar el prompt y probar con imágenes reales (no sintéticas) antes de confiar en la sugerencia automática sin que el usuario la revise — el diseño ya contempla esto (AC2 de HU-6: el usuario siempre puede ajustar/rechazar la sugerencia).
 
 Fuentes:
 - [Best Open-Source Image Generation Models (2026) — Thunder Compute](https://www.thundercompute.com/blog/best-open-source-image-generation-models)

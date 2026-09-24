@@ -8,3 +8,5 @@ dist/
 .env
 .pytest_cache/
 *.egg-info/
+.claude/
+tests/fixtures/output/
