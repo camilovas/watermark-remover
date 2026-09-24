@@ -11,10 +11,10 @@ Prioridad: **MoSCoW** (Must / Should / Could / Won't-this-release).
 |---|---|---|---:|---|---|
 | HU-1 | Entorno de pruebas reproducible (Docker) | 1 — Base | 2 | Must | Config estándar (Dockerfile + compose), baja incertidumbre |
 | HU-2 | Spike — validar IOPaint/LaMa local | 1 — Base | 3 | Must | Incertidumbre técnica (instalación, dependencias, tiempos) aunque sea "solo probar" |
-| HU-3 | Spike — integración barata con Claude API | 1 — Base | 2 | Must | Llamada simple a API + medición de tokens |
+| HU-3 | Spike — integración con Ollama local | 1 — Base | 2 | Must | Llamada simple a la API local de Ollama + medición de tiempo/calidad de respuesta |
 | HU-4 | Selección múltiple de imágenes | 2 — Carga | 3 | Must | UI estándar de Qt (QFileDialog multi-select + drag&drop) |
 | HU-5 | Marcado manual de región (mask editor) | 3 — Remoción | 5 | Must | Requiere manejo de eventos de mouse/canvas, redimensionar/mover; es el corazón de la UX |
-| HU-6 | Sugerencia automática de región vía Claude | 3 — Remoción | 5 | Should | Depende de HU-3 y HU-5; maneja ausencia de API key y feedback visual de la sugerencia |
+| HU-6 | Sugerencia automática de región vía Ollama | 3 — Remoción | 5 | Should | Depende de HU-3 y HU-5; maneja ausencia de Ollama y feedback visual de la sugerencia |
 | HU-7 | Procesamiento de imagen (inpainting local) | 3 — Remoción | 8 | Must | Integración con IOPaint, manejo de errores, formatos, calidad de resultado |
 | HU-8 | Procesamiento por lotes (progreso + cancelar) | 3 — Remoción | 8 | Must | Concurrencia (QThread), cancelación segura, manejo de errores parciales |
 | HU-9 | Empaquetado como ejecutable standalone | 4 — Distribución | 5 | Must | PyInstaller + plugins Qt + prueba en máquina limpia; puede requerir iteración |

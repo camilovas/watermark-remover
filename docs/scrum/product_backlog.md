@@ -15,10 +15,10 @@ Como equipo quiero validar que IOPaint corre localmente sin internet para confir
 - **AC1**: Se procesa una imagen de prueba con marca de agua y se obtiene un resultado sin conexión a internet (tras la descarga inicial del modelo).
 - **AC2**: Se documenta el tiempo de procesamiento y requisitos (RAM/CPU/GPU opcional).
 
-### HU-3: Spike — integración de bajo costo con Claude API
-Como equipo quiero probar el envío de una miniatura a Claude para sugerencia de bounding box, midiendo tokens/costo.
-- **AC1**: Se documenta el costo aproximado en tokens de una llamada de detección.
-- **AC2**: Se confirma que la app puede operar sin la API key configurada (modo 100% local).
+### HU-3: Spike — integración con Ollama local
+Como equipo quiero probar el envío de una miniatura a Ollama (modelo de visión local) para sugerencia de bounding box, midiendo tiempo de respuesta y calidad del resultado.
+- **AC1**: Se documenta el tiempo de respuesta aproximado de una llamada de detección y la precisión observada.
+- **AC2**: Se confirma que la app puede operar sin Ollama disponible (modo 100% local/manual).
 
 ## Épica 2 — App de escritorio: selección y carga de imágenes
 ### HU-4: Selección múltiple de imágenes
@@ -31,13 +31,13 @@ Como usuario quiero seleccionar varias imágenes a la vez para procesarlas en lo
 ### HU-5: Marcado manual de la región de marca de agua
 Como usuario quiero dibujar/ajustar un rectángulo o máscara sobre la imagen para indicar dónde está la marca de agua.
 - **AC1**: El usuario puede dibujar, mover y redimensionar el rectángulo/máscara sobre la vista previa.
-- **AC2**: Funciona sin necesidad de configurar la API de Claude (modo 100% local).
+- **AC2**: Funciona sin necesidad de tener Ollama disponible (modo 100% local).
 
-### HU-6: Sugerencia automática de región vía Claude (opcional)
+### HU-6: Sugerencia automática de región vía Ollama (opcional)
 Como usuario quiero que la app sugiera automáticamente la región de la marca de agua para ahorrar tiempo.
-- **AC1**: Si hay API key configurada, se envía solo una miniatura (baja resolución, ~512px) a Claude usando el modelo **Haiku** (el más económico), no la imagen completa ni un modelo más caro.
+- **AC1**: Si Ollama está disponible (host configurado y respondiendo), se envía solo una miniatura (baja resolución, ~512px) al modelo de visión local (`moondream` por defecto), no la imagen completa ni un modelo más pesado.
 - **AC2**: El usuario puede aceptar, ajustar o rechazar la sugerencia antes de procesar.
-- **AC3**: Si no hay API key, la opción se oculta/deshabilita sin generar errores.
+- **AC3**: Si Ollama no está disponible, la opción se oculta/deshabilita sin generar errores.
 
 ### HU-7: Procesamiento de imagen (inpainting local)
 Como usuario quiero que la app elimine la marca de agua de la imagen seleccionada usando el modelo local.

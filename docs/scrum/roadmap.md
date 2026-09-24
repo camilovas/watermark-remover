@@ -8,9 +8,9 @@
 
 | Sprint | Objetivo | Historias | Story Points |
 |---|---|---|---:|
-| [Sprint 0](sprints/sprint-0/) | Fundación técnica: entorno de pruebas + validar viabilidad de motor local y de Claude | HU-1, HU-2, HU-3 | 7 |
+| [Sprint 0](sprints/sprint-0/) | Fundación técnica: entorno de pruebas + validar viabilidad de motor local y de Ollama | HU-1, HU-2, HU-3 | 7 |
 | [Sprint 1](sprints/sprint-1/) | Flujo end-to-end de una sola imagen: cargar, marcar máscara, procesar local | HU-4, HU-5, HU-7 | 16 |
-| [Sprint 2](sprints/sprint-2/) | Escalar a lotes + asistencia opcional de Claude | HU-6, HU-8 | 13 |
+| [Sprint 2](sprints/sprint-2/) | Escalar a lotes + asistencia opcional de Ollama | HU-6, HU-8 | 13 |
 | [Sprint 3](sprints/sprint-3/) | Cierre de calidad y distribución | HU-9, HU-10 | 10 |
 
 **Total MVP: 46 puntos en 4 sprints** (~11.5 pts/sprint en promedio, razonable considerando que Sprint 0 es más liviano por ser fundación).
@@ -18,8 +18,8 @@
 Fuera del roadmap del MVP: **HU-11** (motor Stable Diffusion de alta calidad, 13 pts) — se revisa en un sprint posterior, después de validar el MVP con usuarios reales.
 
 ## Por qué este orden (dependencias)
-1. **Sprint 0** valida que ambos motores (IOPaint local y Claude API) son viables antes de comprometer diseño sobre ellos.
-2. **Sprint 1** entrega lo mínimo para que el producto tenga valor real (una imagen, de principio a fin, sin necesitar Claude) — es el primer incremento demostrable.
+1. **Sprint 0** valida que ambos motores (IOPaint local y Ollama) son viables antes de comprometer diseño sobre ellos.
+2. **Sprint 1** entrega lo mínimo para que el producto tenga valor real (una imagen, de principio a fin, sin necesitar Ollama) — es el primer incremento demostrable.
 3. **Sprint 2** agrega lo que multiplica el valor (lotes) y la mejora opcional de UX (detección automática), ambas construidas sobre lo ya probado en Sprint 1.
 4. **Sprint 3** cierra con lo que no bloquea la demo pero sí el release real: empaquetado standalone y endurecimiento de la suite de pruebas.
 

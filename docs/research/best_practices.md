@@ -10,7 +10,7 @@ Investigación realizada en Sprint 0 para fundamentar decisiones de arquitectura
 - **IOPaint**: herramienta open-source que envuelve LaMa (y otros modelos como Stable Diffusion) con servidor local, CLI y API HTTP. Activamente mantenida, soporta procesamiento por lotes. Buen candidato para el MVP porque expone una API local que la app de escritorio puede consumir sin depender de internet.
 - **WatermarkRemover-AI** (Florence-2 + LaMa): combina un modelo de detección de región (Florence-2) con LaMa para reconstrucción. Confirma el patrón "detectar región → inpaint" como el más usado en proyectos open-source similares.
 
-**Decisión de arquitectura derivada:** usar **IOPaint (LaMa) local** como motor de inpainting (gratis, offline, sin costo por imagen). La detección de la región de marca de agua se apoya opcionalmente en **Claude Vision API** (tarea barata en tokens: analizar una miniatura y devolver coordenadas del bounding box), reservando el cómputo pesado (generación de píxeles) para el modelo local.
+**Decisión de arquitectura derivada:** usar **IOPaint (LaMa) local** como motor de inpainting (gratis, offline, sin costo por imagen). La detección de la región de marca de agua se apoya opcionalmente en **Ollama** (modelo de visión local, ej. `moondream`), corriendo en esta máquina o en otra de la misma red — reservando el cómputo pesado (generación de píxeles) para el modelo local de inpainting.
 
 Fuentes:
 - [lama-inpainting · GitHub Topics](https://github.com/topics/lama-inpainting)
@@ -28,16 +28,17 @@ Comparación de las opciones de motor de inpainting (deep learning) pensando en 
 
 **Conclusión:** LaMa es la opción que mejor equilibra costo (gratis, corre en CPU de cualquier PC, sin depender de GPU) y calidad suficiente para el caso de uso principal (logos/marcas de agua, que son regiones relativamente regulares). Se deja como **mejora futura opcional** (backlog, no MVP) un "modo alta calidad" con Stable Diffusion para el usuario que tenga GPU y prefiera priorizar calidad sobre velocidad.
 
-### Rol de Claude en el costo total
-- Los modelos de Claude cobran por tokens; una imagen de referencia de 1000×1000 px equivale a ~1334 tokens de entrada. Con **Claude Haiku** (el modelo más económico, ~US$1 por millón de tokens de entrada), una llamada de detección de región sobre una miniatura (no la imagen completa) cuesta fracciones de centavo por imagen.
-- **Decisión de costo:** usar **Claude Haiku** (no Sonnet/Opus) para las tareas de detección de región y control de calidad, ya que no requieren razonamiento complejo — solo visión sobre una miniatura reducida. Esto mantiene el costo por imagen prácticamente despreciable, cumpliendo el objetivo de "que Claude haga lo caro-de-hacer-localmente pero barato en tokens, y que el mayor esfuerzo lo haga el modelo local".
-- Reducir siempre la imagen a una miniatura (ej. 512px de lado mayor) antes de enviarla a Claude, tanto para bajar tokens/costo como latencia.
+### Rol de Ollama (pivote de arquitectura, ver Sprint 0)
+El plan original consideraba la API de Claude (pago por token) para la detección/QC. Se decidió reemplazarla por **Ollama** corriendo un modelo de visión local (`moondream`, ~1.7GB, liviano) porque:
+- **Costo $0**: no hay cobro por token ni por llamada, solo el cómputo de la máquina que corre Ollama.
+- **Sin API key ni internet**: coherente con el requisito de que la app funcione en cualquier PC sin depender de un servicio externo.
+- **Corre en red local**: Ollama expone su API HTTP (`http://<host>:11434` por defecto) — puede correr en la misma máquina del usuario, o en **otra máquina de la red local** que sí tenga el modelo cargado (ej. un equipo más potente compartido por varios usuarios). La app debe permitir configurar el host de Ollama (`OLLAMA_HOST`), no asumir siempre `localhost`.
+- **Modelo elegido (`moondream`)**: liviano y rápido, suficiente para una tarea simple como devolver un bounding box sobre una miniatura reducida (~512px). Si se necesita más precisión, `llava:7b` es una alternativa más pesada.
 
 Fuentes:
 - [Best Open-Source Image Generation Models (2026) — Thunder Compute](https://www.thundercompute.com/blog/best-open-source-image-generation-models)
 - [Inpainting runtime decision doc](https://github.com/SysAdminDoc/Images/blob/main/docs/inpaint-runtime-decision.md)
-- [Vision API Cost Per Image: 2026 Pricing Compared](https://tokencost.app/blog/vision-api-cost-per-image)
-- [Claude API Pricing Breakdown (2026)](https://nicolalazzari.ai/articles/claude-api-pricing-breakdown-2026)
+- [Ollama — documentación oficial](https://github.com/ollama/ollama)
 
 ## 2. Empaquetado de app de escritorio (PySide6/PyQt6 + PyInstaller)
 
@@ -54,7 +55,7 @@ Fuentes:
 
 ## 3. Scrum aplicado a un proyecto pequeño
 
-- Sprint 0 dedicado a spikes técnicos (validar IOPaint local, validar llamada a Claude API) antes de comprometer historias de producto.
+- Sprint 0 dedicado a spikes técnicos (validar IOPaint local, validar llamada a Ollama) antes de comprometer historias de producto.
 - Historias de usuario con formato `Como... quiero... para...` + criterios de aceptación verificables (Given/When/Then), derivados de esta investigación.
 - Definition of Done explícita que incluya: pruebas automatizadas corriendo en Docker, funcionamiento del .exe sin Docker, revisión de código.
 
@@ -62,8 +63,8 @@ Fuentes:
 
 1. La app debe ejecutar el motor de inpainting **sin conexión a internet** y sin Docker instalado en la máquina del usuario final.
 2. Docker y docker-compose se usan exclusivamente para levantar el entorno de pruebas (tests unitarios/integración, y opcionalmente un IOPaint de referencia); no deben ser una dependencia para ejecutar la app empaquetada.
-3. Las llamadas a la API de Claude deben limitarse a tareas de bajo consumo de tokens (ej. detección de región sobre miniatura, no el procesamiento de la imagen completa) y deben ser opcionales/activables (la app debe poder operar 100% local si el usuario no configura una API key).
+3. Las llamadas a Ollama deben limitarse a tareas livianas (ej. detección de región sobre una miniatura, no el procesamiento de la imagen completa) y deben ser opcionales/activables (la app debe poder operar 100% local/manual si Ollama no está disponible).
 4. El empaquetado con PyInstaller debe incluir explícitamente los plugins de plataforma de Qt necesarios y probarse en una máquina limpia (sin Python) antes de cerrar cualquier historia de "release".
 5. La selección múltiple de imágenes y el procesamiento por lotes deben mostrar progreso y permitir cancelar.
-6. Las llamadas a Claude deben usar el modelo más económico que cumpla la tarea (Claude Haiku) sobre miniaturas reducidas (~512px), nunca un modelo más caro (Sonnet/Opus) para detección o control de calidad rutinarios.
+6. Las llamadas a Ollama deben usar el modelo de visión más liviano que cumpla la tarea (`moondream` por defecto) sobre miniaturas reducidas (~512px), no un modelo más pesado, salvo que el usuario lo configure explícitamente.
 7. El motor local por defecto debe ser LaMa (CPU-friendly, sin costo); un motor basado en difusión (mayor calidad, mayor costo computacional) queda como mejora opcional futura, no como requisito del MVP.

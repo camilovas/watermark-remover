@@ -1,6 +1,6 @@
 # Quitar Marca de Agua — contexto del proyecto
 
-App de escritorio (Python + PySide6) para eliminar marcas de agua de imágenes con IA, con selección múltiple/lotes. Metodología **Scrum**. Debe funcionar en cualquier PC **sin Docker**; Docker/docker-compose se usan **solo** para pruebas. Motor de IA local (LaMa/IOPaint) hace el trabajo pesado; Claude (modelo Haiku, sobre miniaturas) asiste en tareas baratas y opcionales (detección de región, control de calidad).
+App de escritorio (Python + PySide6) para eliminar marcas de agua de imágenes con IA, con selección múltiple/lotes. Metodología **Scrum**. Debe funcionar en cualquier PC **sin Docker**; Docker/docker-compose se usan **solo** para pruebas. Motor de IA local (LaMa/IOPaint) hace el trabajo pesado; **Ollama** (modelo de visión local, ej. `moondream`, corriendo en esta máquina o en otra de la red) asiste en tareas livianas y opcionales (detección de región, control de calidad). Claude (aquí, Claude Code) es solo el asistente de desarrollo — no forma parte del producto final.
 
 Estado actual: **fase de planeación** (ningún sprint ejecutado todavía — ver [docs/scrum/roadmap.md](docs/scrum/roadmap.md)). No hay código de la app todavía, solo documentación y esqueleto de repo.
 
@@ -17,7 +17,7 @@ Estado actual: **fase de planeación** (ningún sprint ejecutado todavía — ve
 - **Backlog** (`product_backlog.md`) es la fuente de verdad de las historias (HU-1 a HU-11); sus criterios de aceptación derivan de `research/best_practices.md`.
 - **Estimation** general (`estimation.md`) asigna story points/prioridad/dependencias a cada HU del backlog completo — úsalo junto al backlog, no por separado.
 - **Architecture** (`overview.md` + `detailed.md`) traduce las historias en diseño técnico (módulos, interfaces Strategy/Null Object, diagramas de flujo).
-- El **roadmap** (`roadmap.md`) reparte todo el backlog del MVP en 4 sprints según dependencias: Sprint 0 = HU-1,2,3 (fundación) · Sprint 1 = HU-4,5,7 (flujo de una imagen) · Sprint 2 = HU-6,8 (lotes + Claude opcional) · Sprint 3 = HU-9,10 (empaquetado + cierre de calidad).
+- El **roadmap** (`roadmap.md`) reparte todo el backlog del MVP en 4 sprints según dependencias: Sprint 0 = HU-1,2,3 (fundación) · Sprint 1 = HU-4,5,7 (flujo de una imagen) · Sprint 2 = HU-6,8 (lotes + Ollama opcional) · Sprint 3 = HU-9,10 (empaquetado + cierre de calidad).
 - Cada **sprint** (`sprints/sprint-N/`) trae su propio `plan.md` (con tareas desglosadas por historia), `estimation.md` (solo sus historias) y `definition_of_done.md` (hereda `dod_base.md` + ajustes propios del sprint, ej. un sprint de spikes no exige empaquetado).
 - **`dod_base.md`** es el mínimo común a todos los sprints; nunca se relaja, solo se extiende por sprint.
 

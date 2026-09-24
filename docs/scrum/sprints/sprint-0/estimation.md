@@ -8,7 +8,7 @@ Subconjunto de la [estimación general](../../estimation.md), con solo las histo
 |---|---|---:|---|---|
 | HU-1 | Entorno de pruebas reproducible (Docker) | 2 | Must | Config estándar (Dockerfile + compose), baja incertidumbre |
 | HU-2 | Spike — validar IOPaint/LaMa local | 3 | Must | Incertidumbre técnica (instalación, dependencias, tiempos) aunque sea "solo probar" |
-| HU-3 | Spike — integración barata con Claude API | 2 | Must | Llamada simple a API + medición de tokens |
+| HU-3 | Spike — integración con Ollama local | 2 | Must | Llamada simple a la API local de Ollama + medición de tiempo/calidad de respuesta |
 
 **Total comprometido en Sprint 0: 7 story points.**
 

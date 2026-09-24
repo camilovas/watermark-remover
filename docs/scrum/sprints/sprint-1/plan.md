@@ -2,7 +2,7 @@
 
 > Ver también: [Estimación del sprint](estimation.md) · [Definition of Done del sprint](definition_of_done.md) · [Roadmap](../../roadmap.md) · [Product Backlog](../../product_backlog.md)
 
-**Objetivo del sprint:** que el usuario pueda cargar imágenes, marcar manualmente la región de la marca de agua y obtener el resultado procesado localmente — el primer incremento demostrable del producto, sin depender de Claude.
+**Objetivo del sprint:** que el usuario pueda cargar imágenes, marcar manualmente la región de la marca de agua y obtener el resultado procesado localmente — el primer incremento demostrable del producto, sin depender de Ollama.
 
 ## Alcance (historias) y desglose de tareas
 
@@ -35,5 +35,5 @@
 
 ## Fuera de alcance en Sprint 1
 - Procesamiento por lotes (HU-8, Sprint 2).
-- Sugerencia automática de región vía Claude (HU-6, Sprint 2).
+- Sugerencia automática de región vía Ollama (HU-6, Sprint 2).
 - Empaquetado como ejecutable (HU-9, Sprint 3).

@@ -2,7 +2,7 @@
 
 > Ver también: [Estimación del sprint](estimation.md) · [Definition of Done del sprint](definition_of_done.md) · [Product Backlog](../../product_backlog.md) · [DoD base](../../dod_base.md)
 
-**Objetivo del sprint:** dejar el proyecto listo para empezar a construir funcionalidad: entorno de pruebas reproducible, validación de viabilidad del motor de IA local y de la integración barata con Claude.
+**Objetivo del sprint:** dejar el proyecto listo para empezar a construir funcionalidad: entorno de pruebas reproducible, validación de viabilidad del motor de IA local y de la integración con Ollama.
 
 ## Alcance (historias) y desglose de tareas
 
@@ -23,17 +23,19 @@
 - [ ] Repetir sin conexión a internet para confirmar funcionamiento offline
 - [ ] Documentar resultados en `docs/research/best_practices.md`
 
-### HU-3: Spike — integración de bajo costo con Claude API
+### HU-3: Spike — integración con Ollama local
+- [ ] Confirmar que Ollama está corriendo (`ollama list`) y descargar un modelo de visión (`ollama pull moondream`)
 - [ ] Generar miniatura (~512px) de una imagen de prueba
-- [ ] Script mínimo que llame al SDK de Anthropic (modelo Haiku) pidiendo bounding box de la marca de agua
-- [ ] Registrar tokens de entrada/salida y costo estimado por llamada
-- [ ] Probar el comportamiento sin API key configurada (debe degradar sin crashear)
+- [ ] Script mínimo que llame al cliente Python de Ollama (o su API REST) pidiendo bounding box de la marca de agua
+- [ ] Registrar tiempo de respuesta y evaluar la precisión del bounding box devuelto
+- [ ] Probar el comportamiento cuando Ollama no está disponible (debe degradar sin crashear)
+- [ ] Documentar cómo apuntar a un host de Ollama remoto en la red (`OLLAMA_HOST`)
 - [ ] Documentar hallazgos en `docs/research/best_practices.md`
 
 ## Entregables esperados
 - Repositorio con estructura base (`src/`, `tests/`, `docs/`, `docker/`).
 - `docker-compose.yml` + `docker/Dockerfile.test` funcionando.
-- Documento de resultados de los spikes (viabilidad, tiempos, costos) agregado a `docs/research/best_practices.md`.
+- Documento de resultados de los spikes (viabilidad, tiempos) agregado a `docs/research/best_practices.md`.
 
 ## Fuera de alcance en Sprint 0
 - UI final, selección múltiple real, empaquetado con PyInstaller (eso empieza en el Sprint 1, Épica 2).

@@ -17,10 +17,10 @@
 ### HU-10: Suite de pruebas automatizadas (cierre/endurecimiento)
 - [ ] Revisar fixtures reutilizables (imágenes de prueba, `ImageItem` falso, mocks de engine/detector) usadas en sprints anteriores y consolidarlas
 - [ ] Completar cobertura de tests para `core/` (`batch_processor`, `inpainting_engine`, `watermark_detector`, `quality_checker`)
-- [ ] Completar cobertura de tests para `services/claude_client` (mockeado, sin llamadas reales)
+- [ ] Completar cobertura de tests para `services/ollama_client` (mockeado, sin llamadas reales)
 - [ ] Configurar medición de cobertura (`pytest-cov`) y definir un umbral mínimo razonable
 - [ ] Confirmar que toda la suite corre igual en local (`pytest`) y en `docker-compose run test`
-- [ ] Revisión final de que ningún test depende de red real o de la API de Claude sin mockear
+- [ ] Revisión final de que ningún test dependa de red real ni de una instancia de Ollama real sin mockear
 
 ## Fuera de alcance en Sprint 3
 - HU-11 (motor Stable Diffusion de alta calidad) — backlog futuro, post-MVP.
