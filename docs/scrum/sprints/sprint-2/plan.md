@@ -29,6 +29,8 @@
 
 **Hallazgo de rendimiento (no bloqueante):** cada imagen del lote recarga el modelo LaMa desde cero (el motor invoca el CLI de IOPaint por subprocess en cada llamada, sin servidor persistente) — ~35s/imagen en el lote vs ~25s de una sola imagen suelta. Optimización futura: usar el modo servidor de IOPaint (`iopaint start`) en vez de `iopaint run` por imagen, para mantener el modelo cargado entre llamadas. Queda fuera del alcance de este sprint (no es un requisito de HU-8).
 
+**✅ Resuelto post-MVP:** implementado en `core/iopaint_server.py` — el motor arranca un servidor de IOPaint persistente en la primera imagen y reutiliza esa misma instancia (por HTTP) para las siguientes, tanto en procesamiento individual como en lote. Ver detalle y números medidos en [docs/research/best_practices.md](../../../research/best_practices.md).
+
 ## Fuera de alcance en Sprint 2
 - Empaquetado como ejecutable (HU-9, Sprint 3).
 - Cierre/endurecimiento final de la suite de pruebas (HU-10, Sprint 3) — aunque cada HU de este sprint ya trae sus propios tests, por DoD.

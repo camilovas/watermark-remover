@@ -20,6 +20,31 @@ Investigación realizada en Sprint 0 para fundamentar decisiones de arquitectura
 - **Calidad del resultado**: sobre la imagen de prueba sintética, LaMa eliminó completamente el texto de la marca de agua y reconstruyó el patrón de fondo (rayas verticales) de forma convincente. Se observó un artefacto leve (línea tenue) en el borde de la máscara — aceptable para el caso de uso, pero sugiere que ajustar la máscara con un poco de margen/difuminado alrededor de la marca de agua real mejoraría el resultado (tarea para HU-5: el mask editor podría ofrecer un "grow/feather" configurable).
 - **Conclusión:** IOPaint/LaMa es viable como motor por defecto: rápido en CPU (unos segundos por imagen), sin necesitar GPU, y con buena calidad visual para el caso de uso principal. Corre completamente offline una vez descargado el modelo (~200MB, una sola vez).
 
+### Post-MVP: cambio de modelo (migan) y optimización de rendimiento (servidor persistente)
+
+Al probar la app con imágenes reales de usuario (no solo la fixture sintética), aparecieron hallazgos importantes que llevaron a dos cambios:
+
+**1. Cambio de modelo por defecto: `lama` → `migan`.** Con fondos reales de fotografía de producto (degradados suaves), LaMa dejaba un parche visiblemente borroso sin textura. Se probaron 3 alternativas de IOPaint sobre la misma imagen real:
+
+| Modelo | Resultado en fondo con degradado |
+|---|---|
+| `lama` | Parche borroso, sin textura, notorio |
+| `mat` (Places365) | Con máscara grande, **alucinó una estructura tipo edificio** — descartado, mala elección para fondos de estudio lisos |
+| `migan` | Degradado reconstruido de forma natural, sin artefactos, **y ~6x más rápido en inferencia** |
+
+`migan` es ahora el modelo por defecto (`core/inpainting_engine.py`). Además se agregó **difuminado del borde de la máscara** (`_feather_blend`, con Pillow/GaussianBlur) al combinar el resultado con la imagen original, para eliminar la costura dura que dejaba cualquiera de estos modelos.
+
+**Limitación conocida que persiste:** cuando la marca de agua cruza el **borde de un objeto real** (no solo fondo liso, ej. donde una caja de producto se encuentra con el fondo), estos modelos livianos pueden alucinar pequeños artefactos (un "pico" o muesca) porque no entienden semánticamente que ahí hay un borde — solo extrapolan patrones de textura. Se investigó Stable Diffusion inpainting (`runwayml/stable-diffusion-inpainting`, HU-11) como posible solución: **no es viable en esta máquina** — en CPU tardó más de 10 minutos sin completar un solo paso de difusión y terminó crasheando (probablemente sin memoria suficiente para una imagen de 2258×2258). Confirma que HU-11 requiere GPU, como ya estaba documentado, y queda fuera del MVP.
+
+**2. Optimización de rendimiento: servidor de IOPaint persistente.** Medido con `migan`: cada llamada por subprocess (`iopaint run`, un proceso nuevo por imagen) tardaba **~19s**, de los cuales la inferencia real es solo ~3s — el resto es el costo fijo de arrancar Python e importar PyTorch desde cero, **sin importar qué tan liviano sea el modelo**. Se implementó `core/iopaint_server.py`: al procesar la primera imagen, se arranca `iopaint start` una sola vez como servidor HTTP en segundo plano (con búsqueda automática de puerto libre y health-check antes de usarlo), y las imágenes siguientes se envían por HTTP (`POST /api/v1/inpaint`) al servidor ya cargado en memoria.
+
+Resultado medido:
+- 1ª imagen (arranca el servidor): ~17.5s
+- Imágenes siguientes: **~4.1s cada una** (antes: ~19s cada una)
+- Lote de 3 imágenes: 25.6s totales (antes habría sido ~57s+); para un lote de 10, la diferencia pasa de ~6 min a menos de 1 min
+
+El servidor se apaga al cerrar la ventana principal (`MainWindow.closeEvent` → `engine.shutdown()`). Si el servidor no logra arrancar por algún motivo, `IOPaintEngine` cae de vuelta al modo CLI original (un proceso por imagen) para no dejar la función rota — más lento, pero funcional.
+
 Fuentes:
 - [lama-inpainting · GitHub Topics](https://github.com/topics/lama-inpainting)
 - [IOPaint - Free and Open-Source AI Image Inpainting Tool](https://aibars.net/en/projects/725043813751590912)

@@ -1,6 +1,7 @@
+import time
 from pathlib import Path
 
-from PySide6.QtCore import QRectF, Qt
+from PySide6.QtCore import QRectF, Qt, QTimer
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -38,6 +39,15 @@ class MainWindow(QMainWindow):
         self._detector = None  # se resuelve de forma perezosa (create_detector hace una llamada de red)
         self._batch_thread: BatchProcessor | None = None
         self._progress_dialog: ProgressDialog | None = None
+
+        # IOPaint/Ollama no reportan un % real de avance por imagen (son una sola llamada
+        # bloqueante), así que en vez de fingir un porcentaje se muestra el tiempo
+        # transcurrido en vivo — responde igual a "cuánto se está demorando".
+        self._elapsed_timer = QTimer(self)
+        self._elapsed_timer.setInterval(1000)
+        self._elapsed_timer.timeout.connect(self._tick_elapsed_timer)
+        self._elapsed_start: float = 0.0
+        self._elapsed_label_base: str = ""
 
         self.image_list = ImageListWidget()
         self.image_list.images_added.connect(self._on_images_added)
@@ -110,6 +120,21 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
         self._refresh_ollama_availability()
 
+    # --- Contador de tiempo transcurrido (IOPaint/Ollama no reportan % real) ------
+
+    def _start_elapsed_timer(self, base_message: str):
+        self._elapsed_label_base = base_message
+        self._elapsed_start = time.monotonic()
+        self.status_label.setText(f"{base_message} (0s)")
+        self._elapsed_timer.start()
+
+    def _stop_elapsed_timer(self):
+        self._elapsed_timer.stop()
+
+    def _tick_elapsed_timer(self):
+        elapsed = int(time.monotonic() - self._elapsed_start)
+        self.status_label.setText(f"{self._elapsed_label_base} ({elapsed}s)")
+
     # --- Ollama (detección automática, opcional) --------------------------
 
     def _refresh_ollama_availability(self):
@@ -135,7 +160,7 @@ class MainWindow(QMainWindow):
             return
 
         self.detect_button.setEnabled(False)
-        self.status_label.setText("Detectando región de la marca de agua con Ollama...")
+        self._start_elapsed_timer("Detectando región de la marca de agua con Ollama...")
 
         run_in_background(
             self._detector.detect,
@@ -145,16 +170,23 @@ class MainWindow(QMainWindow):
         )
 
     def _on_detect_finished(self, item: ImageItem, rect):
+        self._stop_elapsed_timer()
         self.detect_button.setEnabled(True)
         if self.image_list.current_image_item() is not item:
             return  # el usuario cambió de imagen mientras se detectaba
         if rect is None:
-            self.status_label.setText("Ollama no encontró una marca de agua clara. Marca la región manualmente.")
+            self.status_label.setText(
+                "Ollama no encontró una marca de agua clara — es un modelo pequeño y puede fallar en marcas "
+                "sutiles/semitransparentes. Marca la región manualmente."
+            )
             return
         self.canvas._set_mask_rect(QRectF(rect))
-        self.status_label.setText("Región sugerida por Ollama — ajústala si hace falta antes de procesar.")
+        self.status_label.setText(
+            "Región sugerida por Ollama — revísala con cuidado antes de procesar, puede no ser exacta."
+        )
 
     def _on_detect_error(self, item: ImageItem, message: str):
+        self._stop_elapsed_timer()
         self.detect_button.setEnabled(True)
         self.status_label.setText("No se pudo detectar automáticamente. Marca la región manualmente.")
 
@@ -225,7 +257,8 @@ class MainWindow(QMainWindow):
             return
 
         item.status = ImageStatus.PROCESSING
-        self._set_busy(True, f"Procesando {item.name}...")
+        self._set_busy(True)
+        self._start_elapsed_timer(f"Procesando {item.name}...")
 
         output_path = safe_output_path(item.path)
         qrect = mask_rect.toRect()
@@ -240,23 +273,27 @@ class MainWindow(QMainWindow):
         )
 
     def _on_process_finished(self, item: ImageItem, result_path: Path):
+        self._stop_elapsed_timer()
+        elapsed = int(time.monotonic() - self._elapsed_start)
         item.status = ImageStatus.DONE
         item.result_path = result_path
-        self._set_busy(False, f"Listo: {item.name} procesada.")
+        self._set_busy(False)
+        self.status_label.setText(f"Listo: {item.name} procesada en {elapsed}s.")
         self.compare_button.setEnabled(True)
         self.save_button.setEnabled(True)
 
     def _on_process_error(self, item: ImageItem, message: str):
+        self._stop_elapsed_timer()
         item.status = ImageStatus.ERROR
         item.error_message = message
-        self._set_busy(False, "Error al procesar la imagen.")
+        self._set_busy(False)
+        self.status_label.setText("Error al procesar la imagen.")
         QMessageBox.critical(self, "Error de procesamiento", message)
 
-    def _set_busy(self, busy: bool, message: str):
+    def _set_busy(self, busy: bool):
         self.progress_bar.setVisible(busy)
         self.process_button.setEnabled(not busy and self.canvas.has_mask())
         self.add_button.setEnabled(not busy)
-        self.status_label.setText(message)
 
     # --- Procesamiento por lotes --------------------------------------------
 
@@ -340,3 +377,10 @@ class MainWindow(QMainWindow):
         if destination:
             QPixmap(str(item.result_path)).save(destination)
             self.status_label.setText(f"Guardado en {destination}")
+
+    # --- Cierre de la app -------------------------------------------------
+
+    def closeEvent(self, event):
+        # Evita dejar el servidor de IOPaint en segundo plano corriendo huérfano.
+        self.engine.shutdown()
+        super().closeEvent(event)
