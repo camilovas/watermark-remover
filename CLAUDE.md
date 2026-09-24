@@ -2,7 +2,7 @@
 
 App de escritorio (Python + PySide6) para eliminar marcas de agua de imágenes con IA, con selección múltiple/lotes. Metodología **Scrum**. Debe funcionar en cualquier PC **sin Docker**; Docker/docker-compose se usan **solo** para pruebas. Motor de IA local (LaMa/IOPaint) hace el trabajo pesado; **Ollama** (modelo de visión local, ej. `moondream`, corriendo en esta máquina o en otra de la red) asiste en tareas livianas y opcionales (detección de región, control de calidad). Claude (aquí, Claude Code) es solo el asistente de desarrollo — no forma parte del producto final.
 
-Estado actual: **fase de planeación** (ningún sprint ejecutado todavía — ver [docs/scrum/roadmap.md](docs/scrum/roadmap.md)). No hay código de la app todavía, solo documentación y esqueleto de repo.
+Estado actual: **Sprint 1 completado** (Sprint 0 y Sprint 1 ✅, ver [docs/scrum/roadmap.md](docs/scrum/roadmap.md)). Ya existe código funcional en `src/watermark_remover/`: flujo completo de una imagen (cargar → marcar máscara → procesar con IOPaint/LaMa local → comparar antes/después → guardar). Próximo: Sprint 2 (lotes + Ollama opcional).
 
 ## Mapa de documentación
 
@@ -12,6 +12,7 @@ Estado actual: **fase de planeación** (ningún sprint ejecutado todavía — ve
 | `docs/architecture/` | Diseño técnico | [overview.md](docs/architecture/overview.md) (visión general), [detailed.md](docs/architecture/detailed.md) (módulos, interfaces, diagramas) |
 | `docs/scrum/` | Artefactos ágiles a nivel de producto | [product_backlog.md](docs/scrum/product_backlog.md) (épicas/historias/criterios de aceptación), [estimation.md](docs/scrum/estimation.md) (story points de TODO el backlog), [dod_base.md](docs/scrum/dod_base.md) (mínimo común, heredado por cada sprint), [roles_ceremonies.md](docs/scrum/roles_ceremonies.md) (PO/Scrum Master/Dev Team, ceremonias) |
 | `docs/scrum/sprints/` | Un subfolder por sprint (`sprint-0/` a `sprint-3/`), cada uno con **su propio** `plan.md` (con tareas desglosadas por historia), `estimation.md` (subset del backlog) y `definition_of_done.md` (hereda `dod_base.md` + criterios propios) | [roadmap.md](docs/scrum/roadmap.md) (vista general) · [sprint-0/](docs/scrum/sprints/sprint-0/) · [sprint-1/](docs/scrum/sprints/sprint-1/) · [sprint-2/](docs/scrum/sprints/sprint-2/) · [sprint-3/](docs/scrum/sprints/sprint-3/) |
+| `src/watermark_remover/` | Código de la app (PySide6) | `ui/` (MainWindow, ImageListWidget, PreviewCanvas, MaskEditor), `core/` (ImageItem, InpaintingEngine/IOPaintEngine), `utils/` (image_utils, file_utils) — ver [architecture/detailed.md](docs/architecture/detailed.md) para el diseño completo |
 
 ## Cómo se conectan
 - **Backlog** (`product_backlog.md`) es la fuente de verdad de las historias (HU-1 a HU-11); sus criterios de aceptación derivan de `research/best_practices.md`.

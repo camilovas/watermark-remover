@@ -10,3 +10,4 @@ dist/
 *.egg-info/
 .claude/
 tests/fixtures/output/
+tests/fixtures/*_sin_marca*.png

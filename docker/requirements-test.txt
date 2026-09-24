@@ -1,0 +1,9 @@
+# Dependencias mínimas para correr la suite de tests en Docker.
+# A propósito NO incluye iopaint (instala PyTorch+CUDA completo en Linux, varios GB)
+# ni pyinstaller (solo se usa localmente para empaquetar, no en el contenedor de tests).
+# Los tests mockean IOPaintEngine (invocación por subprocess), así que no necesitan
+# el paquete iopaint real instalado — solo el resto del código de la app.
+PySide6>=6.7
+Pillow
+pytest>=8.0
+pytest-mock>=3.14
