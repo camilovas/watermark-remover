@@ -1,7 +1,6 @@
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import pytest
 
 from watermark_remover.utils.image_utils import is_supported_format, make_thumbnail
 
@@ -22,19 +21,11 @@ def test_unsupported_formats():
 
 
 def test_make_thumbnail_returns_scaled_pixmap():
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication.instance() or QApplication([])
     thumb = make_thumbnail(FIXTURE, max_size=64)
     assert thumb.width() <= 64
     assert thumb.height() <= 64
 
 
 def test_make_thumbnail_invalid_image_raises():
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication.instance() or QApplication([])
-    import pytest
-
     with pytest.raises(ValueError):
         make_thumbnail(Path(__file__), max_size=64)

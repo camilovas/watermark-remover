@@ -1,20 +1,10 @@
-import sys
 import time
-from pathlib import Path
 from unittest.mock import MagicMock
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-import pytest
 from PySide6.QtCore import QRect
 from PySide6.QtWidgets import QApplication
 
 from watermark_remover.ui.processing_worker import process_async
-
-
-@pytest.fixture(scope="module", autouse=True)
-def qapp():
-    return QApplication.instance() or QApplication([])
 
 
 def _spin_until(predicate, timeout=5.0):

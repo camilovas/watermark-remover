@@ -8,6 +8,8 @@ dist/
 .env
 .pytest_cache/
 *.egg-info/
+.coverage
+htmlcov/
 .claude/
 tests/fixtures/output/
 tests/fixtures/*_sin_marca*.png

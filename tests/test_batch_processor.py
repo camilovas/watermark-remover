@@ -1,11 +1,7 @@
-import sys
 import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-import pytest
 from PySide6.QtCore import QRect
 from PySide6.QtWidgets import QApplication
 
@@ -14,11 +10,6 @@ from watermark_remover.core.image_item import ImageItem, ImageStatus
 from watermark_remover.core.inpainting_engine import InpaintingEngineError
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_watermarked.png"
-
-
-@pytest.fixture(scope="module", autouse=True)
-def qapp():
-    return QApplication.instance() or QApplication([])
 
 
 def _make_items(n: int) -> list[ImageItem]:
@@ -102,6 +93,34 @@ def test_batch_cancellation_stops_before_remaining_images():
     results = results_holder["results"]
     assert len(results) < len(items)  # se canceló antes de terminar todas
     assert engine.process.call_count == len(results)
+
+
+def test_batch_run_body_directly_for_coverage_and_cancel_before_start():
+    """Invoca run() de forma síncrona (sin start()) para que coverage la rastree
+    (coverage no instrumenta de forma confiable el código ejecutado dentro de un
+    QThread real) y de paso cubre el camino donde se cancela antes de procesar nada."""
+    items = _make_items(2)
+    engine = MagicMock()
+    engine.process.side_effect = lambda path, mask_rect, output_path: output_path
+
+    thread = BatchProcessor(engine, items, default_mask_rect=QRect(0, 0, 10, 10))
+    results_holder = {}
+    thread.batch_finished.connect(lambda results: results_holder.update(results=results))
+
+    thread.run()  # ejecución síncrona, en el hilo del test
+
+    assert results_holder["results"][0].success is True
+    assert engine.process.call_count == 2
+
+    # Cancelar antes de correr: el lote no debe procesar nada.
+    items2 = _make_items(2)
+    thread2 = BatchProcessor(engine, items2, default_mask_rect=QRect(0, 0, 10, 10))
+    thread2.cancel()
+    results_holder2 = {}
+    thread2.batch_finished.connect(lambda results: results_holder2.update(results=results))
+    thread2.run()
+
+    assert results_holder2["results"] == []
 
 
 def test_batch_uses_per_item_mask_when_present():

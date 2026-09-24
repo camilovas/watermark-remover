@@ -27,7 +27,8 @@ ENV PYTHONPATH=/app/src
 COPY docker/requirements-test.txt ./
 RUN pip install --no-cache-dir -r requirements-test.txt
 
+COPY pyproject.toml ./
 COPY src ./src
 COPY tests ./tests
 
-CMD ["pytest", "-v"]
+CMD ["pytest", "-v", "--cov=src/watermark_remover", "--cov-report=term-missing"]

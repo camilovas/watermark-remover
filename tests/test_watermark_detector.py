@@ -1,11 +1,5 @@
-import sys
 from pathlib import Path
 from unittest.mock import MagicMock
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-import pytest
-from PySide6.QtWidgets import QApplication
 
 from watermark_remover.core.watermark_detector import (
     NullDetector,
@@ -17,11 +11,6 @@ from watermark_remover.core.watermark_detector import (
 from watermark_remover.services.ollama_client import OllamaUnavailableError
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_watermarked.png"
-
-
-@pytest.fixture(scope="module", autouse=True)
-def qapp():
-    return QApplication.instance() or QApplication([])
 
 
 def test_null_detector_never_calls_network_and_returns_none():

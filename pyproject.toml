@@ -1,0 +1,18 @@
+[tool.coverage.run]
+source = ["src/watermark_remover"]
+concurrency = ["thread"]
+omit = [
+    "src/watermark_remover/main.py",
+]
+
+[tool.coverage.report]
+# La UI (ui/) se verifica con pruebas funcionales manuales/scriptadas end-to-end
+# (ver docs/scrum/sprints/*/plan.md), no con cobertura de tests automatizados de
+# interacción de mouse — por eso se excluye del umbral de cobertura, que aplica
+# a la lógica de negocio (core/, services/, utils/).
+omit = [
+    "src/watermark_remover/main.py",
+    "src/watermark_remover/ui/*",
+]
+fail_under = 80
+show_missing = true

@@ -1,12 +1,8 @@
-import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
 import pytest
 from PySide6.QtCore import QRect
-from PySide6.QtWidgets import QApplication
 
 from watermark_remover.core.inpainting_engine import (
     IOPaintEngine,
@@ -15,11 +11,6 @@ from watermark_remover.core.inpainting_engine import (
 )
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_watermarked.png"
-
-
-@pytest.fixture(scope="module", autouse=True)
-def qapp():
-    return QApplication.instance() or QApplication([])
 
 
 def test_rect_to_mask_image_white_region_matches_rect():

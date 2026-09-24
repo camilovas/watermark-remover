@@ -6,4 +6,4 @@ services:
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
-    command: pytest -v
+    command: pytest -v --cov=src/watermark_remover --cov-report=term-missing

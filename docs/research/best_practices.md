@@ -80,6 +80,18 @@ Fuentes:
 
 **Decisión derivada:** el ejecutable final (.exe) debe funcionar en cualquier PC Windows sin Docker ni Python preinstalado. Docker/docker-compose se usan **solo** para entornos de prueba reproducibles (tests automatizados, servidor IOPaint de referencia en CI), nunca como requisito de distribución.
 
+### Hallazgo del spike/build HU-9: el .exe no incluye IOPaint
+
+Al empaquetar con PyInstaller (`--windowed --paths src`), el build funcionó **mejor de lo esperado** en un aspecto: los plugins de Qt (`qwindows`) se incluyen automáticamente gracias al hook `pyi_rth_pyside6.py` que trae PyInstaller de fábrica — el riesgo anticipado en el roadmap ("si HU-9 encuentra problemas de plugins de Qt, puede consumir más de un sprint") no se materializó.
+
+Sí apareció un hallazgo real distinto: **el `.exe` (~110MB) no incluye IOPaint**. Nuestro `IOPaintEngine` invoca IOPaint como proceso externo (`subprocess.run(["iopaint", "run", ...])`), nunca como `import iopaint` — así que PyInstaller, que solo empaqueta lo que el código Python importa, no tiene forma de detectarlo ni incluirlo automáticamente.
+
+- **Verificado que no rompe la app:** se lanzó el `.exe` con un `PATH` mínimo (simulando una máquina limpia sin Python/IOPaint) y la aplicación arranca y funciona normalmente — cargar imágenes, marcar máscara, todo funciona. Solo el botón "Procesar" falla, con un mensaje de error claro (`InpaintingEngineError`), no un crash.
+- **Implicación para distribución real:** el usuario final necesita `pip install iopaint` una vez en su máquina antes de poder usar la función principal de la app — lo cual requiere Python instalado solo para ese paso, en tensión con el objetivo original de "cero dependencias".
+- **Por qué no se resolvió en este sprint:** empaquetar IOPaint completo implica bundlear PyTorch (y sus decenas de dependencias, varios GB), algo significativamente más complejo que el resto del empaquetado y con retos propios de PyInstaller (hooks para librerías científicas, tamaño del ejecutable). Se documenta como **trabajo futuro** con dos caminos posibles:
+  1. Bundlear un entorno Python portable con IOPaint preinstalado junto al `.exe` (carpeta `_internal` más grande, pero sigue siendo "un solo paquete que copiar").
+  2. Un instalador (ej. Inno Setup) que en el primer arranque descargue/instale IOPaint automáticamente, sin requerir que el usuario abra una terminal.
+
 Fuentes:
 - [Packaging PySide6 and PyQt6 Apps with PyInstaller](https://www.pythonguis.com/faq/pyinstaller-4-2-pyside6/)
 - [Deployment - Qt for Python](https://doc.qt.io/qtforpython-6/deployment/index.html)
