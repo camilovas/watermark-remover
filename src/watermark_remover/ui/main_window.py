@@ -15,11 +15,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from watermark_remover.core.batch_processor import BatchProcessor, BatchResult
 from watermark_remover.core.image_item import ImageItem, ImageStatus
 from watermark_remover.core.inpainting_engine import IOPaintEngine
+from watermark_remover.core.watermark_detector import create_detector
 from watermark_remover.ui.image_list_widget import ImageListWidget
 from watermark_remover.ui.preview_canvas import PreviewCanvas
-from watermark_remover.ui.processing_worker import process_async
+from watermark_remover.ui.processing_worker import process_async, run_in_background
+from watermark_remover.ui.progress_dialog import ProgressDialog
 from watermark_remover.utils.file_utils import safe_output_path
 from watermark_remover.utils.image_utils import SUPPORTED_EXTENSIONS
 
@@ -32,6 +35,9 @@ class MainWindow(QMainWindow):
 
         self.engine = IOPaintEngine()
         self._showing_result = False
+        self._detector = None  # se resuelve de forma perezosa (create_detector hace una llamada de red)
+        self._batch_thread: BatchProcessor | None = None
+        self._progress_dialog: ProgressDialog | None = None
 
         self.image_list = ImageListWidget()
         self.image_list.images_added.connect(self._on_images_added)
@@ -44,6 +50,10 @@ class MainWindow(QMainWindow):
         self.add_button = QPushButton("Agregar imágenes")
         self.add_button.clicked.connect(self._open_file_dialog)
 
+        self.detect_button = QPushButton("Detectar automáticamente")
+        self.detect_button.clicked.connect(self._detect_current)
+        self.detect_button.setEnabled(False)
+
         self.clear_mask_button = QPushButton("Limpiar máscara")
         self.clear_mask_button.clicked.connect(self.canvas.clear_mask)
         self.clear_mask_button.setEnabled(False)
@@ -51,6 +61,10 @@ class MainWindow(QMainWindow):
         self.process_button = QPushButton("Procesar")
         self.process_button.clicked.connect(self._process_current)
         self.process_button.setEnabled(False)
+
+        self.process_all_button = QPushButton("Procesar todas (lote)")
+        self.process_all_button.clicked.connect(self._process_batch)
+        self.process_all_button.setEnabled(False)
 
         self.compare_button = QPushButton("Ver antes/después")
         self.compare_button.clicked.connect(self._toggle_before_after)
@@ -69,12 +83,14 @@ class MainWindow(QMainWindow):
         left_panel = QVBoxLayout()
         left_panel.addWidget(self.add_button)
         left_panel.addWidget(self.image_list)
+        left_panel.addWidget(self.process_all_button)
         left_widget = QWidget()
         left_widget.setLayout(left_panel)
 
         right_panel = QVBoxLayout()
         right_panel.addWidget(self.canvas)
         button_row = QHBoxLayout()
+        button_row.addWidget(self.detect_button)
         button_row.addWidget(self.clear_mask_button)
         button_row.addWidget(self.process_button)
         button_row.addWidget(self.compare_button)
@@ -92,6 +108,55 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(splitter)
 
         self.setAcceptDrops(True)
+        self._refresh_ollama_availability()
+
+    # --- Ollama (detección automática, opcional) --------------------------
+
+    def _refresh_ollama_availability(self):
+        def _resolve():
+            return create_detector()
+
+        run_in_background(_resolve, self._on_detector_resolved, self._on_detector_resolve_error)
+
+    def _on_detector_resolved(self, detector):
+        self._detector = detector
+        # NullDetector no tiene is_available(); solo el real la expone.
+        available = hasattr(detector, "is_available")
+        self.detect_button.setVisible(available)
+        if available:
+            self.detect_button.setEnabled(self.image_list.current_image_item() is not None)
+
+    def _on_detector_resolve_error(self, _message: str):
+        self.detect_button.setVisible(False)
+
+    def _detect_current(self):
+        item = self.image_list.current_image_item()
+        if item is None or self._detector is None:
+            return
+
+        self.detect_button.setEnabled(False)
+        self.status_label.setText("Detectando región de la marca de agua con Ollama...")
+
+        run_in_background(
+            self._detector.detect,
+            lambda rect, item=item: self._on_detect_finished(item, rect),
+            lambda message, item=item: self._on_detect_error(item, message),
+            item.path,
+        )
+
+    def _on_detect_finished(self, item: ImageItem, rect):
+        self.detect_button.setEnabled(True)
+        if self.image_list.current_image_item() is not item:
+            return  # el usuario cambió de imagen mientras se detectaba
+        if rect is None:
+            self.status_label.setText("Ollama no encontró una marca de agua clara. Marca la región manualmente.")
+            return
+        self.canvas._set_mask_rect(QRectF(rect))
+        self.status_label.setText("Región sugerida por Ollama — ajústala si hace falta antes de procesar.")
+
+    def _on_detect_error(self, item: ImageItem, message: str):
+        self.detect_button.setEnabled(True)
+        self.status_label.setText("No se pudo detectar automáticamente. Marca la región manualmente.")
 
     # --- Carga de imágenes -------------------------------------------------
 
@@ -117,6 +182,7 @@ class MainWindow(QMainWindow):
         self.status_label.setText(f"{self.image_list.count()} imagen(es) cargada(s).")
         if self.image_list.currentItem() is None and self.image_list.count() > 0:
             self.image_list.setCurrentRow(0)
+        self.process_all_button.setEnabled(self.image_list.count() > 0)
 
     def _on_unsupported_files(self, paths: list[str]):
         names = "\n".join(Path(p).name for p in paths)
@@ -132,10 +198,13 @@ class MainWindow(QMainWindow):
         if item is None:
             self.process_button.setEnabled(False)
             self.clear_mask_button.setEnabled(False)
+            self.detect_button.setEnabled(False)
             return
         self.canvas.load_image(item.path)
         self.process_button.setEnabled(False)
         self.clear_mask_button.setEnabled(False)
+        if self._detector is not None and hasattr(self._detector, "is_available"):
+            self.detect_button.setEnabled(True)
         if item.result_path and item.result_path.exists():
             self.compare_button.setEnabled(True)
             self.save_button.setEnabled(True)
@@ -147,7 +216,7 @@ class MainWindow(QMainWindow):
         self.clear_mask_button.setEnabled(has_mask)
         self.process_button.setEnabled(has_mask)
 
-    # --- Procesamiento ---------------------------------------------------
+    # --- Procesamiento individual -----------------------------------------
 
     def _process_current(self):
         item = self.image_list.current_image_item()
@@ -188,6 +257,67 @@ class MainWindow(QMainWindow):
         self.process_button.setEnabled(not busy and self.canvas.has_mask())
         self.add_button.setEnabled(not busy)
         self.status_label.setText(message)
+
+    # --- Procesamiento por lotes --------------------------------------------
+
+    def _process_batch(self):
+        items = [self.image_list.item(i).data(1000) for i in range(self.image_list.count())]
+        if not items:
+            return
+
+        default_mask = self.canvas.mask_rect()
+        if default_mask is None and not any(item.mask_rect for item in items):
+            QMessageBox.information(
+                self, "Falta una máscara",
+                "Marca la región de la marca de agua en al menos la imagen actual antes de procesar el lote "
+                "(esa máscara se usará como referencia para las imágenes que no tengan una propia).",
+            )
+            return
+
+        default_qrect = default_mask.toRect() if default_mask is not None else None
+
+        self.add_button.setEnabled(False)
+        self.process_all_button.setEnabled(False)
+        self.process_button.setEnabled(False)
+
+        self._progress_dialog = ProgressDialog(total=len(items), parent=self)
+        self._progress_dialog.cancel_requested.connect(self._cancel_batch)
+
+        self._batch_thread = BatchProcessor(self.engine, items, default_qrect)
+        self._batch_thread.item_started.connect(self._progress_dialog.set_progress)
+        self._batch_thread.batch_finished.connect(self._on_batch_finished)
+        self._batch_thread.start()
+
+        self._progress_dialog.exec()
+
+    def _cancel_batch(self):
+        if self._batch_thread is not None:
+            self._batch_thread.cancel()
+
+    def _on_batch_finished(self, results: list[BatchResult]):
+        if self._progress_dialog is not None:
+            self._progress_dialog.accept()
+            self._progress_dialog = None
+
+        self.add_button.setEnabled(True)
+        self.process_all_button.setEnabled(True)
+        self.process_button.setEnabled(self.canvas.has_mask())
+
+        successes = sum(1 for r in results if r.success)
+        failures = [r for r in results if not r.success]
+        summary = f"Lote terminado: {successes}/{len(results)} imágenes procesadas correctamente."
+        self.status_label.setText(summary)
+
+        if failures:
+            details = "\n".join(f"- {r.item.name}: {r.error_message}" for r in failures)
+            QMessageBox.warning(self, "Algunas imágenes fallaron", f"{summary}\n\n{details}")
+
+        current = self.image_list.current_image_item()
+        if current is not None and current.result_path and current.result_path.exists():
+            self.compare_button.setEnabled(True)
+            self.save_button.setEnabled(True)
+
+        self._batch_thread = None
 
     # --- Comparación / guardado ------------------------------------------
 

@@ -2,7 +2,7 @@
 
 App de escritorio (Python + PySide6) para eliminar marcas de agua de imágenes con IA, con selección múltiple/lotes. Metodología **Scrum**. Debe funcionar en cualquier PC **sin Docker**; Docker/docker-compose se usan **solo** para pruebas. Motor de IA local (LaMa/IOPaint) hace el trabajo pesado; **Ollama** (modelo de visión local, ej. `moondream`, corriendo en esta máquina o en otra de la red) asiste en tareas livianas y opcionales (detección de región, control de calidad). Claude (aquí, Claude Code) es solo el asistente de desarrollo — no forma parte del producto final.
 
-Estado actual: **Sprint 1 completado** (Sprint 0 y Sprint 1 ✅, ver [docs/scrum/roadmap.md](docs/scrum/roadmap.md)). Ya existe código funcional en `src/watermark_remover/`: flujo completo de una imagen (cargar → marcar máscara → procesar con IOPaint/LaMa local → comparar antes/después → guardar). Próximo: Sprint 2 (lotes + Ollama opcional).
+Estado actual: **Sprint 2 completado** (Sprint 0, 1 y 2 ✅, ver [docs/scrum/roadmap.md](docs/scrum/roadmap.md)). `src/watermark_remover/` tiene: flujo de una imagen (cargar → marcar máscara → procesar con IOPaint/LaMa local → comparar → guardar), procesamiento por lotes con progreso/cancelación (`core/batch_processor.py`), y detección automática opcional vía Ollama (`core/watermark_detector.py`, `services/ollama_client.py`, con fallback transparente a `NullDetector` si Ollama no está disponible). Próximo: Sprint 3 (empaquetado como ejecutable + cierre de calidad).
 
 ## Mapa de documentación
 
