@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quitar Marca de Agua</title>
+<meta name="description" content="App de escritorio para eliminar marcas de agua de imágenes con IA local, sin depender de servicios en la nube.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #171a23;
+    --surface-2: #1f2330;
+    --border: #2a2f3d;
+    --text: #e8eaf0;
+    --text-dim: #a0a6b8;
+    --accent: #6ee7b7;
+    --accent-2: #60a5fa;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef0f4;
+      --border: #dde1e8;
+      --text: #1a1d24;
+      --text-dim: #5b6272;
+      --accent: #059669;
+      --accent-2: #2563eb;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef0f4;
+    --border: #dde1e8;
+    --text: #1a1d24;
+    --text-dim: #5b6272;
+    --accent: #059669;
+    --accent-2: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  header.hero {
+    padding: 72px 0 48px;
+    text-align: center;
+  }
+  header.hero h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  header.hero p.tagline {
+    color: var(--text-dim);
+    font-size: 18px;
+    max-width: 620px;
+    margin: 0 auto 28px;
+  }
+  .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .badge {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid var(--border);
+  }
+  .btn.primary { background: var(--accent); color: #0b1210; border-color: transparent; }
+  .btn.secondary { background: var(--surface); color: var(--text); }
+  section { padding: 40px 0; border-top: 1px solid var(--border); }
+  section h2 { font-size: 22px; margin-bottom: 20px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { margin: 0; color: var(--text-dim); font-size: 14px; }
+  .stack-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .stack-list li {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .flow .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: var(--text);
+  }
+  .arrow { color: var(--accent-2); }
+  .note {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  footer {
+    padding: 32px 0 60px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  footer a { color: var(--text-dim); }
+  a { color: var(--accent-2); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--surface-2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Quitar Marca de Agua</h1>
+      <p class="tagline">App de escritorio para eliminar marcas de agua de imágenes con IA local — sin nube, sin costo por imagen, sin Docker en la máquina del usuario.</p>
+      <div class="badges">
+        <span class="badge">Python + PySide6</span>
+        <span class="badge">IOPaint / migan</span>
+        <span class="badge">Ollama opcional</span>
+        <span class="badge">GPL-3.0</span>
+      </div>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/camilovas/watermark-remover">Ver en GitHub</a>
+        <a class="btn secondary" href="https://github.com/camilovas/watermark-remover#readme">Cómo instalarlo</a>
+        <a class="btn secondary" href="https://github.com/camilovas/watermark-remover/blob/main/docs/architecture/overview.md">Arquitectura</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Qué hace</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Selección múltiple</h3>
+          <p>Carga varias imágenes a la vez (arrastrar y soltar o diálogo de archivos) y procésalas en lote.</p>
+        </div>
+        <div class="card">
+          <h3>Marcado manual o automático</h3>
+          <p>Dibuja la región de la marca de agua a mano, o deja que Ollama (modelo de visión local) la sugiera.</p>
+        </div>
+        <div class="card">
+          <h3>Inpainting local</h3>
+          <p>El modelo <code>migan</code> (vía IOPaint) reconstruye la región eliminada, con difuminado de bordes para que no se note la costura.</p>
+        </div>
+        <div class="card">
+          <h3>Lotes con progreso</h3>
+          <p>Barra de progreso, cancelación a mitad de camino, y un servidor de inferencia persistente para que cada imagen adicional tarde segundos, no minutos.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cómo funciona</h2>
+      <div class="flow">
+        <span class="step">Cargar imágenes</span>
+        <span class="arrow">→</span>
+        <span class="step">Marcar máscara</span>
+        <span class="arrow">→</span>
+        <span class="step">Procesar (local)</span>
+        <span class="arrow">→</span>
+        <span class="step">Comparar antes/después</span>
+        <span class="arrow">→</span>
+        <span class="step">Guardar</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Stack técnico</h2>
+      <ul class="stack-list">
+        <li>Python 3.10+</li>
+        <li>PySide6</li>
+        <li>IOPaint (LaMa / migan)</li>
+        <li>Ollama (opcional)</li>
+        <li>PyInstaller</li>
+        <li>pytest + pytest-cov</li>
+        <li>Docker (solo pruebas)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sin nube, por diseño</h2>
+      <p class="note">
+        Todo el procesamiento de imágenes corre en la máquina del usuario. La única llamada de red opcional es a
+        <strong>Ollama</strong> (que también puede correr localmente, o en otra máquina de la red) para sugerir
+        automáticamente la región de la marca de agua — y solo se le envía una miniatura reducida, nunca la imagen completa.
+        Si Ollama no está disponible, la app sigue funcionando al 100% con marcado manual.
+      </p>
+    </section>
+
+    <footer>
+      <p>
+        Construido con metodología Scrum — backlog, sprints y decisiones documentadas en
+        <a href="https://github.com/camilovas/watermark-remover/tree/main/docs">docs/</a>.
+        Licencia <a href="https://github.com/camilovas/watermark-remover/blob/main/LICENSE">GPL-3.0</a>.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
